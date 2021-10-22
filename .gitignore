@@ -1,2 +1,7 @@
 *.tmp
 ~$er Stories Draft.docx
+
+# files generated during latex development
+__latexindent_temp.tex
+report.*
+!report.tex
