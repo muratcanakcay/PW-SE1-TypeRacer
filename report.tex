@@ -3,7 +3,9 @@
 \usepackage[utf8]{inputenc}
 \usepackage{color}
 \usepackage{hyperref}
+\usepackage{datetime}
 \usepackage{graphicx}
+\usepackage[margin=3cm]{geometry}
 \graphicspath{{./assets}}
 \hypersetup{
 	colorlinks=true,
@@ -13,7 +15,7 @@
 	
 \title{Typeracer Project Specification \\ \large Software Engineering 1}
 \author{Muratcan Akçay, Kamil Monicz, Maciej Piętka,\\ Michał Cebula, Marcin Wojnarowski}
-\date{Semester 5, 2021}
+\date{\monthname, 2021}
 	
 \begin{document}
 
@@ -27,40 +29,42 @@
 
 \subsubsection{Player user stories}
 
+\newcommand{\AC}{\subitem AC. }
+
 \begin{enumerate}
 	\item
 	      As a player, I want to play a competitive typeracer game so that I can compare my typing skills against other people, increase my typing skills and have fun.
-	      \subitem
+	      \AC
 	      The game accepts multiple players together to type a block of text and race against each other and announces the order of completion.
 
 	\item
 	      As a player, I want to set my playerName so that other players can see my name on the leaderboard if I score a high score.
-	      \subitem
+	      \AC
 	      The game allows players to set their names and use them for displaying the leaderboard.
 
 	\item
 	      As a player, I want to see the daily and all-time high scores so that I can compare my skill level to the best players.
-	      \subitem
+	      \AC
 	      The game provides functionality to display the top ten daily/all-time scores in words per minute format.
 
 	\item
 	      As a player, I want to see how many players I’m playing against and the placement of all players during the game so that I can compare my skill position to the players I am playing with.
-	      \subitem
+	      \AC
 	      The game shows the player’s position during the game.
 
 	\item
 	      As a player, I want to see the placement of all players at the end of the game so that I can compare my skill level to the players I played with.
-	      \subitem
+	      \AC
 	      The game shows each player’s placement and score in words per minute format at the end of each game.
 
 	\item
 	      As a player, I want to choose which regional server I want to play on so that I will have the least latency during the game.
-	      \subitem
+	      \AC
 	      The game allows for choosing from three regional servers (NA, Europe, Asia) to play on at the beginning.
 
 	\item
 	      As a player, I want to chat with the other players after a game is over so that I can communicate with the other players and express my opinions.
-	      \subitem
+	      \AC
 	      The game displays a chat box at the end of each individual game where the players can chat until the next game begins.
 \end{enumerate}
 
@@ -69,42 +73,42 @@
 \begin{enumerate}
 	\item
 	      As an admin, I want to search the content database so that I can see which entries contain the search phrase I enter and remove that entry if I want.
-	      \subitem
+	      \AC
 	      The game allows admins to search the database and displays the entries containing the search phrase.
 
 	\item
 	      As an admin, I want to add or remove content to the game so that I have control over the texts that will be shown to the players..
-	      \subitem
+	      \AC
 	      The game allows admins to add or game content to the database by pasting in a textbox or importing as a .txt file.
 
 	\item
 	      As an admin, I want to edit the displayed announcement text so that players are informed about important events such as server downtime or high score reset dates.
-	      \subitem
+	      \AC
 	      The game allows admins to modify the announcement text displayed on the main game window.
 
 	\item
 	      As an admin, I want to shut down the game service so that I can make changes in the configuration of the game without problems.
-	      \subitem
+	      \AC
 	      The game allows admins to shut down the game service.
 
 	\item
 	      As an admin, I want to restart the game service so that changes made can take effect and any existing errors can be remedied.
-	      \subitem
+	      \AC
 	      The game allows admins to restart the game service.
 
 	\item
 	      As an admin, I want to reset the leaderboard so that a new game season can be started with a blank all-time leaderboard allowing new players to compete for the high scores.
-	      \subitem
+	      \AC
 	      The game allows admins to reset the leaderboard.
 
 	\item
 	      As an admin, I want to adjust the queue duration so that I can manage how long players have to wait before a game starts.
-	      \subitem
+	      \AC
 	      The game allows admins to adjust the waiting queue duration.
 
 	\item
 	      As an admin, I want to adjust the DNF (did not finish) duration so that I can manage how long players have to wait before a game ends, even if one of the players never finishes typing the text.
-	      \subitem
+	      \AC
 	      The game allows admins to adjust the DNF duration.
 \end{enumerate}
 
@@ -160,12 +164,11 @@
 	\item Bot the player and admin components of the system will only be web-based and run on latest versions of Chrome, Firefox and Microsoft Edge browsers.
 \end{itemize}
 
-\newpage
 \subsection{Use case diagram}
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.85\textwidth]{TypeRacerUseCase.drawio.png}
+	\includegraphics[width=0.75\textwidth]{TypeRacerUseCase.drawio.png}
 \end{figure}
 
 \end{document}
