@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass[titlepage]{article}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{color}
@@ -17,17 +17,99 @@
 \author{Muratcan Akçay, Kamil Monicz,\\ Maciej Piętka, Marcin Wojnarowski}
 \date{\monthname, \the\year}
 	
+\newcommand{\secref}[1]{{(Section \hypersetup{linkcolor=blue}\ref{#1})}}
+
+\newcommand{\figref}[1]{{(Fig. \hypersetup{linkcolor=blue}\ref{#1})}}
+
 \begin{document}
 
 \maketitle
 
 \tableofcontents
+\newpage
+
+\section{Introduction}
+
+\subsection{Preface}
+
+It is without question that typing is a crucial skill in the age of computers. We type to message our loved ones, to write a professional email, to calculate, or even to write specifications such as this one. While other solutions such as Speech-To-Text are gaining popularity, they will never be able to replace typing. Typing serves as the primary mean of communication with our computers.
+
+Often times the skill of typing is implicitly assumed by employers; nowadays nearly all jobs require some sort of interaction with a computer. Lack of this skill can greatly hinder our performance on a day to day basis.
+
+Typing ranges from being a required chore to be able to communicate thoughts with a computer to a fun, competitive activity.
+
+\subsection{Existing work}
+
+Typing game is not an new idea, in fact the term {\it Typing game} is a popular video game genre. During the age of internet many new typing games have emerged. Below we present the current most popular choice for typing games and its drawbacks.
+
+A homonymous site by the name of \url{typeracer.com} is by far the most popular choice for competitive and casual typing. Similarly to our project, {\it typeracer.com} focuses on real-time multiplayer. However, it comes with some important drawbacks:
+
+\begin{itemize}
+	\item Proprietary -- Source is not available, cannot be tinkered with
+
+	\item Commercial model -- Some feature are locked behind a paywall
+
+	\item Single client -- server-client communication is not standardized, forced to use the provided client
+
+	\item Single server -- there is only one true server, games over the local network cannot be hosted
+\end{itemize}
+
+These limitations are the primary areas which will be directly tackled in this project.
+
+\subsection{Overview}
+
+The goal of the Typeracer project is to create a multiplayer interactive typing game. The aim is to create a standardized game server which will be able to host games for any compliant client regardless of its technological stack. The following three rules are to be enforced by the project:
+
+\begin{enumerate}
+	\item Clients are interchangeable and can coexist -- a server can host a game for any compliant client as well as different clients can be in the same game.
+
+	\item Hostability -- server can be easily self hosted, whether that would be on a private server or on a local network.
+
+	\item Real-time -- multiplayer games are updated in real time
+\end{enumerate}
+
+The game itself simply serves as a trainer and entertainer (if one enjoys fast typing). The game consists of a single input field, a text with the paragraph to be typed and the progress of all players \figref{fig:overview}.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.79\textwidth]{overview.png}
+	\caption{Overview of the game}
+	\label{fig:overview}
+\end{figure}
+
+However before one can reach the game, the preferred game server has to be picked. Afterwards player waits in a lobby where other players can join the room. To help pass time, the lobby has an integrated chat.
+
+Everything is managed by a running server and games can be moderated by admins. Best scores are kept in a leaderboard which it too can be moderated by an admin.
+
+To sum up, this project consists of three components:
+
+\begin{enumerate}
+	\item Client -- Interacts with players, plays games
+	\item Server -- Hosts games
+	\item Admin panel -- Interacts with admins, manages games
+\end{enumerate}
+
+\subsection{Nomenclature} \label{nomenclature}
+
+The following terms will be used throughout the specification, some come from the typing world and some from the technical one.
+
+\begin{itemize}
+	\item {\bf WPM} -- Words Per Minute, primary typing metric. Defines the average amount of correctly typed words per minute.
+
+	\item {\bf Typer} -- Typeracer player.
+\end{itemize}
 
 \section{Requirements}
 
+To start, a strict set of requirements has to be defined. The requirements are expressed in User Stories, a list of functional requirements, and finally other non-functional ones. Clearly defined requirements are crucial for a complete and cohesive system, which has to be the case in Typeracer due to its interchangeable nature.
+
 \subsection{User Stories}
 
+User Stories are written from the user's perspective (whether that would be a player or admin) and describe the expected results together with some acceptance criteria.
+
 \subsubsection{Player user stories}
+
+The most important actor is the player, after all all components are built with the player in mind. The following set of user stories will help illustrate what a user expects from the game.
 
 \newcommand{\AC}{\subitem AC. }
 
@@ -70,6 +152,8 @@
 
 \subsubsection{Admin user stories}
 
+The second actor is the admin which can moderate various aspects of the server and clients. The following list enumerates expectations of an admin with regards to their admin panel.
+
 \begin{enumerate}
 	\item
 	      As an admin, I want to search the content database so that I can see which entries contain the search phrase I enter and remove that entry if I want.
@@ -77,9 +161,9 @@
 	      The game allows admins to search the database and displays the entries containing the search phrase.
 
 	\item
-	      As an admin, I want to add or remove content to the game so that I have control over the texts that will be shown to the players..
+	      As an admin, I want to add or remove content to the game so that I have control over the texts that will be shown to the players.
 	      \AC
-	      The game allows admins to add or game content to the database by pasting in a textbox or importing as a .txt file.
+	      The game allows admins to add or game content to the database by pasting in a text box or importing as a .txt file.
 
 	\item
 	      As an admin, I want to edit the displayed announcement text so that players are informed about important events such as server downtime or high score reset dates.
@@ -114,6 +198,8 @@
 
 \subsection{Functional requirements}
 
+To be more specific, a list of core functional requirements is listed below.
+
 \begin{itemize}
 	\item The players can set their player names before starting to play the game
 	\item The players can see the daily and all-time leaderboards where high scores are displayed.
@@ -129,18 +215,20 @@
 	\item The admins can view the content database to see the entries sorted by date added
 	\item The admins can search the content database to find all entries containing a specific search phrase
 	\item The admins can remove an entry from the database
-	\item The admins can add an entry to the database by pasting the text in a textbox or importing a .txt file
+	\item The admins can add an entry to the database by pasting the text in a text box or importing a .txt file
 	\item The admins can reset the all-time leaderboards
 \end{itemize}
 
 \subsection{Non-Functional requirements}
 
+Finally, a set of non-functional requirements has to be presented to further describe the vision.
+
 \subsubsection{Usability}
 
 \begin{itemize}
-	\item The service is available in English, for all users with Internet connection.
-	\item The user interface for the players is minimalist, allowing only keyboard input, clear and easy to use.
-	\item The user interface for the admins is minimalist, allowing both mouse and keyboard input, clear and easy to use.
+	\item The service is available in English, for all users with an Internet/LAN connection.
+	\item The user interface for the players is minimalistic, allowing only keyboard input, clear and easy to use.
+	\item The user interface for the admins is minimalistic, allowing both mouse and keyboard input, clear and easy to use.
 \end{itemize}
 
 \subsubsection{Reliability}
@@ -148,13 +236,13 @@
 \begin{itemize}
 	\item The service will have at max 5\% of downtime.
 	\item The service will be logging any encountered errors.
-	\item The service will be restored in maximum of 1 day after a fatal error
+	\item The service will be restored in maximum of 1 day after a fatal error.
 \end{itemize}
 
 \subsubsection{Performance}
 
 \begin{itemize}
-	\item The service will support 1000 concurrent players on each server.
+	\item The service will support at least 1000 concurrent players on each server.
 	\item The service can be scaled to support more users at a time.
 \end{itemize}
 
@@ -165,16 +253,25 @@
 \end{itemize}
 
 \newpage
+
 \subsection{Use case diagram}
-\begin{figure}[h]
+
+To sum up the requirements in a visual form, which will give a rough idea of how the usage should flow.
+
+\begin{figure}[ht]
 	\centering
-	\includegraphics[width=0.79\textwidth]{use_case_diagram.png}
+	\includegraphics[width=0.75\textwidth]{use_case_diagram.png}
+	\caption{Typeracer use case diagram}
+	\label{fig:usecase-diag}
 \end{figure}
+
 \newpage
+
+\section{Design}
 
 \subsection{Class diagram}
 
-\begin{figure}[h]
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.79\textwidth]{class_diagram.png}
 \end{figure}
@@ -183,31 +280,31 @@
 
 \subsubsection{Server}
 
-\begin{figure}[h]
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.79\textwidth]{state_diagram_server.png}
 \end{figure}
 
 \subsubsection{Admin panel}
 
-\begin{figure}[h]
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.79\textwidth]{state_diagram_admin.png}
 \end{figure}
 
 \subsubsection{Client}
 
-\begin{figure}[h]
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.79\textwidth]{state_diagram_player.png}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.79\textwidth]{state_diagram_lobby.png}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.79\textwidth]{state_diagram_game.png}
 \end{figure}
