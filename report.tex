@@ -3,6 +3,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{color}
 \usepackage{hyperref}
+\usepackage{float}
 \usepackage{datetime}
 \usepackage{graphicx}
 \usepackage[margin=3cm]{geometry}
@@ -97,6 +98,8 @@ The following terms will be used throughout the specification, some come from th
 	\item {\bf WPM} -- Words Per Minute, primary typing metric. Defines the average amount of correctly typed words per minute.
 
 	\item {\bf Typer} -- Typeracer player.
+
+	\item {\bf DNF} -- Did Not Finish, equivalent with disqualification.
 \end{itemize}
 
 \section{Requirements}
@@ -269,44 +272,87 @@ To sum up the requirements in a visual form, which will give a rough idea of how
 
 \section{Design}
 
+In this section system's behavior and expected states are described.
+
 \subsection{Class diagram}
 
-\begin{figure}[ht]
+The system can be split into few core components \figref{fig:class-diag}:
+
+\begin{itemize}
+	\item {\bf Player} -- It has to be able to select a server to which it will be able to later join a game. A player can also set its name as well as show the leaderboard.
+	\item {\bf Chat} -- The chat module boils down to being able to send and receive messages.
+	\item {\bf GameService} -- Manages starting and ending games. Additionally it can accept incoming connections and drop when needed. Whenever needed, it can also update the leaderboards.
+	\item {\bf Lobby} -- Once players are in the lobby they are managed by the lobby class where the queue can be started. It can also control which component is being shown: announcement, chat, and leaderboard.
+	\item {\bf Announcement} -- Can only be retrieved, or changed by the admin.
+	\item {\bf Admin} -- Controls other services. It can start, stop, or restart the server. It can authenticate the admin by letting them login but also log out. Admin can also alter the dnf countdown, the queue countdown as well as change the announcement text. It can also inspect the leaderboard.
+	\item {\bf Leaderboard} -- A leaderboard can either be daily or all time. Both of them can be modified: resetting to a clean slate, adding a record to a leaderboard and getting the leaderboard.
+	\item {\bf ContentManager} -- Allows adding and deleting texts that will be typed by the players. Texts can be added either as a raw string or from a text file which will include many texts separated by some delimiter. Finally, it allows for picking a random text.
+\end{itemize}
+
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.79\textwidth]{class_diagram.png}
+	\caption{Typeracer class diagram}
+	\label{fig:class-diag}
 \end{figure}
 
 \subsection{State diagrams}
 
+States of Typeracer are well defined, we can expect a fixed set of states.
+
 \subsubsection{Server}
 
-\begin{figure}[ht]
+Server has a small amount of states \figref{fig:state-server}. Its responsibility is to accept incoming requests and handle them. Before receiving a request the server is in a waiting state. Once a request arrives it has to handle it, no matter whether the handling is successful or not, a response has to be sent back. In case of an error, it should be logged.
+
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.79\textwidth]{state_diagram_server.png}
+	\caption{Server's state diagram}
+	\label{fig:state-server}
 \end{figure}
 
 \subsubsection{Admin panel}
 
-\begin{figure}[ht]
+Admin's state \figref{fig:state-admin} is the most complex due to the fact that many components can be altered resulting in many different states. The admin panel is guarded by a login screen which requires admin privileges. Once authorized, admin can browse many sub-pages in which they can change the behavior and look of the game. At any time, pressing the logout button brings the admin back to the login screen
+
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.79\textwidth]{state_diagram_admin.png}
+	\caption{Admin's state diagram}
+	\label{fig:state-admin}
 \end{figure}
 
 \subsubsection{Client}
 
-\begin{figure}[ht]
+Client's state is responsible for tracking player's progress and the usage flow. Three separate entities can be identified: Player, Lobby, and Game.
+
+The player state \figref{fig:state-client-player} focuses on the states happening at the very beginning when the client is started. At first the user is prompted to enter their username, once it is confirmed and validated to be correct the user is redirected to a place where a game server can be chosen. Otherwise, the user stays in the set username screen until it is valid.
+
+When selecting a server the only error state is a connection error. If it occurs the user is allowed to pick a game server again until success. Once a connection is successful user is moved to the lobby.
+
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.79\textwidth]{state_diagram_player.png}
+	\caption{Client's player state diagram}
+	\label{fig:state-client-player}
 \end{figure}
 
-\begin{figure}[ht]
+In the lobby \figref{fig:state-client-lobby} a countdown is ran in the background. Once it reaches zero, we exit the lobby and move to the game. Before that, there are two concurrent states: Lobby and Chat/Leaderboard. In the lobby the queue is displayed together with a announcement controlled by the admin. Chat and leaderboards are interchangeable and cannot be present at the same time. Leaderboards are spit into daily and all-time.
+
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.79\textwidth]{state_diagram_lobby.png}
+	\caption{Client's lobby state diagram}
+	\label{fig:state-client-lobby}
 \end{figure}
 
-\begin{figure}[ht]
+Finally, in the game section \figref{fig:state-client-game}, as the name suggests, the game takes place. Here the state is rather constant and is changed only if the game countdown reaches zero (which results in a DNF) or when every player finishes typing the text. During the game, the progress of other players is displayed, and the user advances through their text by typing consecutive words.
+
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.79\textwidth]{state_diagram_game.png}
+	\caption{Client's game state diagram}
+	\label{fig:state-client-game}
 \end{figure}
 
 
