@@ -1,0 +1,450 @@
+openapi: "3.0.0"
+info:
+  description: "Description of the TypeRacer API"
+  version: "1.0.0"
+  title: "TypeRacer API"
+  contact:
+    url: https://github.com/muratcanakcay/PW-SE1-TypeRacer
+
+servers:
+  - url: https://typerracer.io/api
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: general
+    description: General endpoints used by all components
+
+  - name: security
+    description: Authorization
+
+  - name: leaderboards
+    description: Endpoints for leaderboards
+
+  - name: texts
+    description: Management of typing texts
+
+  - name: server
+    description: Server management
+
+  - name: chat
+    description: Chat websocket server
+
+  - name: lobby
+    description: Lobby websocket server
+
+  - name: game
+    description: Game webscoket server
+
+paths:
+  /auth:
+    get:
+      tags:
+        - security
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  username:
+                    type: "string"
+                  authorities:
+                    type: "array"
+                    items:
+                      type: "string"
+
+    post:
+      tags:
+        - security
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      security: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  token:
+                    type: "string"
+
+  /announcement:
+    get:
+      tags:
+        - general
+      summary: "Get announcement"
+      security: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Annoucement"
+    put:
+      tags:
+        - general
+      summary: "Update announcement"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Annoucement"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Annoucement"
+
+  /leaderboards:
+    get:
+      tags:
+        - leaderboards
+      summary: "Get leaderboards"
+      security: []
+      parameters:
+        - in: "query"
+          name: "type"
+          required: true
+          schema:
+            $ref: "#/components/schemas/LeaderboardType"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Leaderboard"
+
+  /leaderboards/reset:
+    post:
+      tags:
+        - leaderboards
+      summary: "Reset leaderboards"
+      parameters:
+        - in: "query"
+          name: "type"
+          required: true
+          schema:
+            $ref: "#/components/schemas/LeaderboardType"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Leaderboard"
+
+  /texts:
+    post:
+      tags:
+        - texts
+      summary: "Add a text"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Text"
+
+  /texts/{textId}:
+    delete:
+      tags:
+        - texts
+      summary: "Delete an existing text"
+      parameters:
+        - in: "path"
+          name: "textId"
+          description: "ID of text to delete"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Text not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
+
+  /server/restart:
+    post:
+      tags:
+        - server
+      summary: "Restart game server"
+      responses:
+        "200":
+          description: OK
+
+  /ws/lobby:
+    servers:
+      - url: wss://typerracer.io/ws/lobby
+
+    post:
+      tags:
+        - lobby
+      summary: "Join lobby and become a registered user"
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+      responses:
+        default:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+    get:
+      tags:
+        - lobby
+      summary: "Returns lobby users"
+      security: []
+      responses:
+        default:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                oneOf:
+                  - type: array
+                    description: List of lobby users
+                    items:
+                      $ref: "#/components/schemas/User"
+                  - type: object
+                    description: Game start
+                    properties:
+                      gameId:
+                        type: integer
+        "409":
+          description: A game is currently in progress
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
+
+  /ws/chat:
+    servers:
+      - url: wss://typerracer.io/ws/chat
+
+    post:
+      tags:
+        - chat
+      summary: "Post a message on chat"
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sender:
+                  $ref: "#/components/schemas/User"
+                content:
+                  type: string
+      responses:
+        default:
+          description: "No response"
+
+    get:
+      tags:
+        - chat
+      summary: "Pushes new chat messages"
+      security: []
+      responses:
+        default:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "409":
+          description: Cannot join chat after the game has started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
+
+  /ws/game:
+    servers:
+      - url: wss://typerracer.io/ws/game
+
+    post:
+      tags:
+        - game
+      summary: "Join and start game"
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                gameId:
+                  type: integer
+                me:
+                  $ref: "#/components/schemas/User"
+      responses:
+        default:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  gameText:
+                    type: string
+    put:
+      tags:
+        - game
+      summary: Update your progress
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                currentCharacter:
+                  type: integer
+      responses:
+        default:
+          description: No response
+          content: {}
+
+    get:
+      tags:
+        - game
+      summary: Returns player positions/end game
+      security: []
+      responses:
+        default:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                oneOf:
+                  - type: array
+                    description: Player positions
+                    items:
+                      type: object
+                      properties:
+                        player:
+                          $ref: "#/components/schemas/User"
+                        characterPosition:
+                          type: integer
+                  - type: array
+                    description: Game end, final scores
+                    items:
+                      type: object
+                      properties:
+                        wpm:
+                          type: number
+                        player:
+                          $ref: "#/components/schemas/User"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Annoucement:
+      type: "object"
+      properties:
+        announcement:
+          type: string
+
+    LeaderboardType:
+      type: string
+      enum: [daily, allTime]
+
+    Leaderboard:
+      type: object
+      properties:
+        username:
+          type: string
+        wpm:
+          type: number
+
+    Text:
+      type: object
+      properties:
+        id:
+          type: integer
+        text:
+          type: string
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID of the message
+        sender:
+          $ref: "#/components/schemas/User"
+        content:
+          type: string
+          description: Message contents
+        sendDate:
+          type: string
+          description: ISO 8601 date of the send time
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+
+    FailResponse:
+      type: "object"
+      properties:
+        message:
+          type: "string"

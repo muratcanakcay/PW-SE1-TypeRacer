@@ -355,5 +355,90 @@ Finally, in the game section \figref{fig:state-client-game}, as the name suggest
 	\label{fig:state-client-game}
 \end{figure}
 
+\subsection{Activity diagrams}
+
+\section{System communication}
+
+In this section the communication between individual components is described. With help of sequence diagrams we hope to fully describe the system without leaving any place for doubts. We opted for a communication of REST and WebSockets, used whenever best suited.
+
+REST will ensure the HTTP API is well structured and predictable. We used it in places where communication client-server bases on a single question-single answer scheme where it is not expected to be continuously asking the server for some data. Another advantage of REST is that it is ubiquitous and known by pretty much every programmer and architecture designer. Finally, many tools exist to speed up development of such REST APIs. In particular, we used one such tool to create documentation of our API.
+
+\textbf{Swagger} tooling helped us define all schemas and endpoints of the server. The spec adheres to OpenAPI version 3 and can be found in the attachments in the \texttt{apispec.yaml} file.
+
+However, in some parts of the program real time communication is needed and as such WebSockets were adopted in our project as the protocol used for such push-based communication. WebSocket is a web-based protocol which provides full-duplex communication over TCP, which is perfect for our real-time components such as chat, lobby, and the game. Unlike HTTP it allows two hosts to be connected in session and allows the server to push new messages without a trigger on client side. WebSockets perform client-server connection through a HTTP handshake which makes it limited to web environments. However since the creation of WebSockets many platforms have adopted them since making them a comfortable choice, even in non-web platforms.
+
+Due to the lack of support of event based communication (which WebSocket is) in Swagger, we opted to include WebSocket schemas in the API spec anyways, but with some rules:
+
+\begin{enumerate}
+	\item WebSocket endpoints are visible as \texttt{/ws/*}
+	\item WebSocket endpoints have overridden host url, because they use the \texttt{wss://} protocol instead of \texttt{https://}
+	\item \texttt{GET} requests signify the initial join request
+	\item \texttt{PUT} requests signify the possible client messages as a Swagger's \texttt{oneOf} object
+	\item \texttt{POST} requests signify the possible server messages as a Swagger's \texttt{oneOf} object
+\end{enumerate}
+
+\subsection{Admin}
+
+Admin panel contains many independent communication streams as it is allowed to modify various parts of the system. As seen on \figref{fig:seq-admin}, before any modifying action can be performed, the admin actor has to be authenticated. As described in the API spec we use Bearer Token based authentication where tokens are Json Web Tokens (JWTs). Each consequent admin request is required to be authorized by passing this obtained token in a HTTP header: \texttt{Authorization: Bearer <token>}. In the sequence diagram we see actions possible by the admin and the API spec describes the exact payloads.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.63\textwidth]{seq_diagram_admin.png}
+	\caption{Admin's sequence diagram}
+	\label{fig:seq-admin}
+\end{figure}
+
+
+\subsection{Client}
+
+\subsubsection{Lobby}
+
+When opening the client app, user is greeted with an announcement text fetched from the server \figref{fig:seq-client-lobby}. After that user is able to set their username and join the lobby. Lobby is a place where potential players wait for other players to join to be able to start the game. In this lobby players can join and leave, which is real-time communicated to users by pushing player list updates from the server using WebSockets (indicated by a \textit{push updates} loop frame). Once the lobby countdown reaches zero, the game starts and game info is pushed to clients (such as game ID) as a final websocket message.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{seq_diagram_lobby_players.png}
+	\caption{Client's lobby sequence diagram}
+	\label{fig:seq-client-lobby}
+\end{figure}
+
+While in the lobby, one can choose to see the leaderboard or join the lobby chatroom to pass time.
+
+\subsubsection{Leaderboards}
+
+As seen in \figref{fig:seq-client-leaderboard} fetching leaderboards by a client is straightforward: the request includes a description whether the daily or all-time leaderboard is wanted, and then the appropriate leaderboard is returned as a list of usernames with their respective WPM.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{seq_diagram_leaderboard.png}
+	\caption{Clients's leaderboard sequence diagram}
+	\label{fig:seq-client-leaderboard}
+\end{figure}
+
+\subsubsection{Chat}
+
+The chat is simple and avoids any advanced features, after all it serves purely as a time-passer. A client actor connects to the lobby chat by establishing a WebSocket handshake with the server. Then the server is able to return new messages to all connected clients in real-time. Each message consists of user's ID and username, the message timestamp and of course the content of the message. Each client can send its own message which will be propagated to all other connected actors. Clients are free to disconnect at any time without disrupting the chat.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1\textwidth]{seq_diagram_chat.png}
+	\caption{Clients's chat sequence diagram}
+	\label{fig:seq-chat-leaderboard}
+\end{figure}
+
+\subsubsection{Game}
+
+Finally, there is the most important flow: the game loop. It also takes advantage of real-time capabilities of WebSockets. After the lobby each player joins the game WebSocket where each player is required to notify the game server about their progress. Progress is calculated from the character at which each player is currently at. The client update frequency is left to be implementation defined, as it plays not much of an important role (though, it is recommended to update positions after each finished word).
+
+Game server will continuously push updated positions of all players to clients which will allow the game UI to be updated frequently. Once a player is done, they wait for all other players to finish after which all players receive the final results.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{seq_diagram_game.png}
+	\caption{Clients's game sequence diagram}
+	\label{fig:seq-game-leaderboard}
+\end{figure}
+
+
 
 \end{document}
