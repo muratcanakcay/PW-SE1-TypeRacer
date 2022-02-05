@@ -357,6 +357,52 @@ Finally, in the game section \figref{fig:state-client-game}, as the name suggest
 
 \subsection{Activity diagrams}
 
+In this section the main user activity of playing a game is described. This activity consists of connecting to the server, waiting for a game to start, playing a game, viewing the leaderboard and either choosing to play another round or disconnecting from the server.
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.79\textwidth]{activity_diagram_game.png}
+	\caption{Game's activity diagram}
+	\label{fig:game-activity}
+\end{figure}
+
+
+The action starts with the user being prompted to enter a username of their choosing \figref{fig:game-activity}. After a name is entered, the user is redirected to a game server selection screen where they can choose which game server they want to join in order to play a game.
+
+Once a server is selected by the user and the connection to the server is established, the user is redirected to a lobby screen. If a game is in progress the user waits in this lobby screen until the countdown reaches zero and the ongoing game is finished. After the game is finished a new game is started and the user is shown a sentence which they must type. The game ends for the user when they finish typing the displayed text without any errors or when the game countdown reaches zero. At the end of the game a leaderboard is displayed with the best scores and the user may select to play another round or quit.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.79\textwidth]{activity_diagram_admin.png}
+	\caption{Admin's activity diagram}
+	\label{fig:admin-activity}
+\end{figure}
+
+
+When a user connects to the admin panel the login screen is displayed, asking for the login credentials \figref{fig:admin-activity}. Only authorized admins are allowed to log in to the admin panel since this component can be used to alter the functionality of the game by changing the database of the stored texts, countdown durations, etc. When the user enters the credentials these are sent to the server. The server receives the credentials and confirms that they are valid. If the credentials are not valid the user is informed about this situation and notified through a "login not accepted" message. If the credentials are valid then the server sends a login token to the client, to be used in all further communications in order to confirm that actions are taken by an authorized admin. Then the user is taken to the main page of the admin console where they can choose to perform any of the actions provided for the admins. These actions are detailed in the state diagrams. Once the user selects an action they want to carry out, a request, along with the login token is sent to the server. The server confirms that the token is valid before processing the requested action. The outcome of the action, whether it's successful or failed, is also notified to the user. The user can perform multiple actions until they log out. When a user clicks logout the token is deleted from the client side.
+
+
+When a player types in the chat \figref{fig:chat-activity} and presses the return key a signal is sent to the server via the established websocket connection, containing the message and the player's name. The Server then proceeds to validate the message, making sure that it does not contain any blacklisted words or phrases. If the message is not valid then it is replaced with a \texttt{"<message deleted>"} text, otherwise it is copied as it is to create a new text. This new text is then copied to the list of all messages and is multicast to all clients at once. A client receiving a new message from the server displays it at the bottom of the chat windows as a new message, along with the name of the player that sent it.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.79\textwidth]{activity_diagram_chat.png}
+	\caption{Chat's activity diagram}
+	\label{fig:chat-activity}
+\end{figure}
+
+When a player types in the input box, the client app checks to see if a word was typed with no mistakes \figref{fig:progress-activity}. If this is the case a signal is sent to the server via the established websocket connection, containing the progress of the player. The Server then proceeds to process this information and based on the time elapsed and the number of words typed correctly in the input box, re-orders the progress states of all connected players. The new progress state is sent to all clients. A client receiving the progress states  from the server re-renders the progress of the players on screen.
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.79\textwidth]{activity_diagram_progress.png}
+	\caption{Game progress activity diagram}
+	\label{fig:progress-activity}
+\end{figure}
+
+
 \section{System communication}
 
 In this section the communication between individual components is described. With help of sequence diagrams we hope to fully describe the system without leaving any place for doubts. We opted for a communication of REST and WebSockets, used whenever best suited.
@@ -439,6 +485,30 @@ Game server will continuously push updated positions of all players to clients w
 	\label{fig:seq-game-leaderboard}
 \end{figure}
 
+
+\subsection{Abnormal behavior}
+
+While using the application, some unwanted and unusual interactions can happen. Below a list of such occurrences can be found, along with an exemplary reaction from the application.
+
+\subsubsection{Disconnected database}
+
+An error of disconnected database could occur when trying to either read from it, or when trying to save to it. In such a case, the user should be informed about that in an error message just after a single attempt. The server never tries to connect to the database by itself, as it could make the application prone to attacks. Afterwards, the user may have another attempt.
+
+\subsubsection{API gives no response to requests}
+
+A user may try to communicate with the server while the API doesn't work. If there is no response from the API, the user will get an error message saying that a server connection error has occurred. On the other hand, on the server's side there would be a message for the admin with an error code, so that the server admin could figure out what the problem is.
+
+\subsubsection{Socket can't connect}
+
+Server will be working in the form of a loop, listening for any requests. However, a rare situation may occur when the socket can't connect, and thus the loop won't start. In that case, a connection timeout will occur and the user will be informed about the problems with the server.
+
+\subsubsection{Insufficient resources}
+
+In the case that there are too many requests sent to the server, we will have a situation where the given resources are insufficient. In that case, all the requests will be interrupted, and all the users trying to fetch the prediction or measurement will be informed with an error message. They will be able to try to connect again once the servers are back to normal.
+
+\subsubsection{Malformed API request}
+
+In some specific cases, there may be a situation when a user tries to send a malformed, unrecognizable request. In that case, a simple message with \texttt{400} code is returned.
 
 
 \end{document}
