@@ -133,14 +133,14 @@ The most important actor is the player, after all all components are built with 
 	      The game provides functionality to display the top ten daily/all-time scores in words per minute format.
 
 	\item
-	      As a player, I want to see how many players I’m playing against and the placement of all players during the game so that I can compare my skill position to the players I am playing with.
+	      As a player, I want to see how many players I'm playing against and the placement of all players during the game so that I can compare my skill position to the players I am playing with.
 	      \AC
-	      The game shows the player’s position during the game.
+	      The game shows the player's position during the game.
 
 	\item
 	      As a player, I want to see the placement of all players at the end of the game so that I can compare my skill level to the players I played with.
 	      \AC
-	      The game shows each player’s placement and score in words per minute format at the end of each game.
+	      The game shows each player's placement and score in words per minute format at the end of each game.
 
 	\item
 	      As a player, I want to choose which regional server I want to play on so that I will have the least latency during the game.
@@ -509,6 +509,46 @@ In the case that there are too many requests sent to the server, we will have a 
 \subsubsection{Malformed API request}
 
 In some specific cases, there may be a situation when a user tries to send a malformed, unrecognizable request. In that case, a simple message with \texttt{400} code is returned.
+
+\newpage
+
+\section{User simulations}
+
+To show that application works, we shall describe some steps to perform activities alongside with expected results.
+
+\subsection{Player Simulation}
+\begin{enumerate}
+	\item After visiting the website the user will be asked to enter their name.
+	\item After entering a name the user will be asked to select a server to connect to. Once a server is selected a connection should be established and the user should be taken to the lobby screen where an announcement, a chat box and a countdown is displayed. There should also be an option to view the leaderboards.
+	\item When the user types a valid message in the chat box the message should be sent to the server and then received back since it's valid and displayed in the chat box among all other messages sent by all users.
+	\item When the user types an invalid message containing a forbidden word or phrase in the chat box the message should be sent to the server and then a "<message deleted>" message should be received back since and displayed in the chat box among all other messages sent by all users.
+	\item When the user chooses to see the leaderboards the leaderboard should be displayed in place of the chat box. There should be an option to switch between the daily and all-time leaderboards and both should be displayed correctly.
+	\item When the countdown in the lobby reaches zero the game should start.
+	\item In the game screen the following should be displayed: The text to be typed by the user, an input box where the text will be typed, the progresses of other players and the DNF (did-not-finish) countdown which displays the time left to finish typing. The other players' progresses should include the player viewing the screen, the player ranking 1st and the player ranking last, along with their WPM (words-per-minute) scores for the current game.
+	\item When the user types in a word without mistakes that that word should become uneditable and marked with a different color to indicate that it was typed without mistakes. The player's progress should be sent to the server and the new progress states of all players should be received from the server, updating the progress of other players on the client screen.
+	\item When the player completes typing the text without any mistakes, the game should end for them, they should be notified of their final score in WPM and their ranking among other players. The chat box should be displayed.
+	\item  When the player cannot complete typing the text until the DNF timer reaches zero, the game should end, they should be notified of their final score in WPM and their ranking among other players. The chat box should be displayed.
+	\item If a player scores a high score in a game, they should be notified and their name and score should be automatically entered in the leaderboard(s).
+	\item When a game ends the player should be moved to the lobby. And a new countdown should be displayed to indicate when the next game begins.
+\end{enumerate}
+
+\subsection{Admin Simulation}
+
+\begin{enumerate}
+	\item After visiting the website the user will be asked to enter their login credentials. If the credentials are incorrect the user should be notified and not allowed to proceed. If the credentials are valid the user is logged in to the admin panel and the main page showing the service status as "started" or "stopped", a "Logout" button as well as the following admin options is displayed where the user can choose which action to carry out.
+	\item If the user clicks on the "Service Actions" button on the main page they should be taken to the service actions page. Clicking the "Home" button should take the user to the main page and these service options should displayed:
+	      \begin{itemize}
+		      \item \textbf{Start Service:} If the game service is not running it should come online and users should be able to play a game when this option is clicked.
+		      \item \textbf{Stop Service:} If the game service is running it should stop and users should not be able to play a game when this option is clicked.
+		      \item \textbf{Restart Service:} This option should briefly stop and then restart the game service.
+	      \end{itemize}
+	\item If the user clicks on the "Announcement" button on the main page  they should be taken to the edit announcement page.  The currently set announcement as well as a "Home" button should be displayed. Clicking the "Home" button should take the user to the main page. Clicking the "Edit Announcement" button should display an edit box containing the current announcement. Clicking the "Save" button should set save the contents of the edit box as the new announcement and any user logging in to the game and viewing the lobby screen should be able to see this new announcement. Clicking the "Cancel" button should remove the edit box and only display the announcement.
+	\item If the user clicks on the "Leaderboard" button on the main page they should be taken to the leaderboard page. The current leaderboards as well as a "Home" button should be displayed. Clicking the "Home" button should take the user to the main page. Clicking the "Reset" button should display a confirmation box with "Confirm" and "cancel" options. Clicking the "Confirm" button should clear the all-time leaderboard data and go back to displaying the empty leaderboards.  Any user logging in to the game and viewing the leaderboard should be able to see that the leaderboard has been cleared. Clicking the "Cancel" button should remove the confirmation box.
+	\item If the user clicks on the "Content Manager" button on the main page they should be taken to the content management page which will display two options: "Browse content" and "Add content". Also a "Home" button should be displayed, which, when clicked, should take the user to the main page.
+	\item If the user clicks on the "Browse Content" button on the content manager page they should be taken to the browse content page, where the content entries in the database, ordered by the date of their addition to the database, as well as "Back" and  "Home" buttons should be displayed. Clicking on the "Back " button should take the user back to the content manager page and clicking on the "Home" button should take the user back to the main page. Two input fields "search by ID" and "search by phrase" should be available and the user should be able to search the database content based on the Id number of a content entry or a search phrase they enter. When the "Search" button is clicked the content entries matching the search criteria should be displayed, with a "Delete"  button next to each entry. Clicking the "Delete" button should display a confirmation box with "Confirm" and "cancel" options. Clicking the "Confirm" button should delete the entry from database and any user logging in to the game should not be given the deleted entry as a text afterwards.
+	\item If the user clicks on the "Add Content" button on the content manager page they should be taken to the add content page, where the add content options, as well as "Back" and  "Home" buttons should be displayed. Clicking on the "Back" button should take the user back to the content manager page and clicking on the "Home" button should take the user back to the main page. Two buttons "Add From Text" and "Add From File" should be available and the user should be able to to add new content to the database using these buttons. After entering a text or choosing a .txt file to be processed and clicking "save" the newly added content should be displayed at the top of the list of entries shown on the content manager page and user logging in to the game should have a chance to be given the newly added entry as a text afterwards. In the case that the .txt file selected is invalid the user should be notified that there are errors in the file it cannot be read.
+	\item When the user clicks on the "logout" they should be taken to the login page where the input box for the login password has been cleared. Clicking on "login" without entering password should not log the user back in.
+\end{enumerate}
 
 
 \end{document}
