@@ -6,6 +6,7 @@
 \usepackage{float}
 \usepackage{datetime}
 \usepackage{graphicx}
+\usepackage{attachfile}
 \usepackage[margin=3cm]{geometry}
 \graphicspath{{./assets}}
 \hypersetup{
@@ -548,6 +549,22 @@ To show that application works, we shall describe some steps to perform activiti
 	\item If the user clicks on the "Browse Content" button on the content manager page they should be taken to the browse content page, where the content entries in the database, ordered by the date of their addition to the database, as well as "Back" and  "Home" buttons should be displayed. Clicking on the "Back " button should take the user back to the content manager page and clicking on the "Home" button should take the user back to the main page. Two input fields "search by ID" and "search by phrase" should be available and the user should be able to search the database content based on the Id number of a content entry or a search phrase they enter. When the "Search" button is clicked the content entries matching the search criteria should be displayed, with a "Delete"  button next to each entry. Clicking the "Delete" button should display a confirmation box with "Confirm" and "cancel" options. Clicking the "Confirm" button should delete the entry from database and any user logging in to the game should not be given the deleted entry as a text afterwards.
 	\item If the user clicks on the "Add Content" button on the content manager page they should be taken to the add content page, where the add content options, as well as "Back" and  "Home" buttons should be displayed. Clicking on the "Back" button should take the user back to the content manager page and clicking on the "Home" button should take the user back to the main page. Two buttons "Add From Text" and "Add From File" should be available and the user should be able to to add new content to the database using these buttons. After entering a text or choosing a .txt file to be processed and clicking "save" the newly added content should be displayed at the top of the list of entries shown on the content manager page and user logging in to the game should have a chance to be given the newly added entry as a text afterwards. In the case that the .txt file selected is invalid the user should be notified that there are errors in the file it cannot be read.
 	\item When the user clicks on the "logout" they should be taken to the login page where the input box for the login password has been cleared. Clicking on "login" without entering password should not log the user back in.
+\end{enumerate}
+
+\section{Technology proposal}
+
+First of all we would like to stress that the technology used will not matter. When designing the project we made sure to be as technology and platform agnostic as possible. That being said, we have some preference which will be presented in the following paragraph. However these are merely suggestions, and should not be strictly adhered to.
+
+We believe creating a web app for the admin panel makes most sense. Admin panel does not have to be quickly accessible (for example from mobile) as it contains no time sensitive settings. Responsive design will not be needed either since it is primarily for desktop devices. However if one was to add responsive design, turning this admin panel to a PWA could be a nice addition. As to technology, any modern light client framework/library will do just fine (such as Vue/Preact/Svelte), Angular is not recommended due to its large size. It would be important however to use TypeScript instead of JavaScript since it provides static typing and therefore is less prone to runtime errors. Finally, the web app could be powered by some meta framework which would provide server-side-rendering (Nuxt/Next).
+
+Nowadays pretty much any language can be used for backend development. However, lately there has been a boom of new systems languages appearing and completely redefining the scene. One such language which would be of our recommendation is Rust. It provides safety of a high level languages while maintaining speeds on par with C. It does not carry a heavy runtime (like Java, C\#, or Python) making it easy to deploy on low end devices. One important factor that has to be considered is WebSocket support, luckily Rust does have packages implementing the WebSocket protocol so it will not cause any problems. For a database we recommend using relational databases. Some free  solution, such as PostgreSQL or MySQL will be perfect for the job.
+
+Finally for the client app instead of recommending a stack, we would like to recommend against one: web. Purpose of this project was to be platform independent, ideally many clients would be created each on a completely different platform while still being able to coexist and play games together. Web is not recommended since it is the obvious (and boring) choice. Get creative! Examples include terminal apps, native desktop apps, discord bot, etc.
+
+\section{Attachments}
+
+\begin{enumerate}
+	\item \textattachfile[color=0 0 1]{apispec.yaml}{apispec.yaml} -- OpenAPI v3 specification of the API
 \end{enumerate}
 
 
